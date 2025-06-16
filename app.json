@@ -8,6 +8,9 @@
     "scheme": "reviewsnative",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "API_URL": "https://api-recetasnative.onrender.com"
+    },
     "ios": {
       "supportsTablet": true
     },
