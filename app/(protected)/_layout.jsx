@@ -1,8 +1,9 @@
 
-import { Stack,Redirect } from 'expo-router';
-import { useContext} from 'react';
+import { Stack } from 'expo-router';
+import { useContext } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { AuthContext } from '../../context/authContext.jsx';
-import { ActivityIndicator,View } from 'react-native';
+
 
 export default function ProtectedLayout() {
 
@@ -29,6 +30,7 @@ export default function ProtectedLayout() {
   // }
 
   // Si está logueado y hay token, muestra las tabs
+  
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{headerShown: false}} />
