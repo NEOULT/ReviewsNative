@@ -1,21 +1,16 @@
 
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { useContext } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthContext } from '../../context/authContext.jsx';
 
 
-export default function ProtectedLayout() {
 
-  console.log(123, 'ProtectedLayout');
-  
+export default function ProtectedLayout() {
 
   const { isLoggedIn, token, loading } = useContext(AuthContext);
   
   const authInactive = true;
-  console.log('AuthInactive:', (authInactive || isLoggedIn));
-
-  console.log('Loading:', loading);
   
   if (loading) {
     return (
@@ -25,9 +20,9 @@ export default function ProtectedLayout() {
     );
   }
 
-  // if (!isLoggedIn || !token) {
-  //   return <Redirect href="/login" />;
-  // }
+  if (!isLoggedIn || !token) {
+    return <Redirect href="/login" />;
+  }
 
   // Si está logueado y hay token, muestra las tabs
   

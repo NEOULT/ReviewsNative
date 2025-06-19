@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect} from 'react';
-import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import { createContext, useEffect, useState } from 'react';
 
 export const AuthContext = createContext();
 
@@ -73,7 +73,7 @@ export default function AuthProvider({ children }) {
         
         await saveItem('userId', data.userId);
         await saveItem('token', data.token);
-        router.replace('/recipes');
+        router.replace('/movies');
         setIsLoggedIn(true);
     }
 

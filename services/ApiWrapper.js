@@ -50,8 +50,6 @@ export class ApiWrapper {
   // Block from auth
 
   signIn(data) {
-    console.log('Signing in with data:', data);
-    
     return this.#postData('auth/signin', data);
   }
 

@@ -17,9 +17,6 @@ export default function MediaDetail({ media, onBack, isMovie }) {
   const [showComments, setShowComments] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
-  console.log('MediaDetail props:', media, onBack, isMovie);
-  
-
   return (
 
     <ScrollView contentContainerStyle={styles.container}>
