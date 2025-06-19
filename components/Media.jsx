@@ -1,0 +1,163 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+
+  function getRatingColor(rating) {
+    if (rating <= 35) return '#E53935'; // Rojo
+    if (rating <= 69) return '#FFA726'; // Naranja
+    return '#43A047';                   // Verde
+  }
+
+export default function MediaCard ({cover_image, title, year, critic_rating, community_rating, rating, onPress}) {
+  
+  return (
+    // ...existing code...
+    
+<Pressable onPress={onPress} style={styles.container}>
+<View style={styles.container}>
+  
+  {/* Imagen */}
+  <View style={styles.imageContainer}>
+    <Image resizeMode='cover' source={{ uri: cover_image }} style={styles.image}  />
+  </View>
+  {/* Info */}
+  <View style={styles.infoContainer}>
+    {/* Título */}
+  
+    <Text style={styles.titleText}>
+      {title.length > 25 ? title.slice(0, 25) + '...' : title}
+    </Text>
+    {/* Ratings tomate y cotufa */}
+    <View style={styles.ratingsRow}>
+      <View style={styles.ratingDetail}>
+        <Text style={styles.ratingLabel}>
+          <MaterialCommunityIcons name="trophy" size={20} color="#FFD700" />
+        </Text>
+        <Text style={styles.ratingValue}> {critic_rating}%</Text>
+      </View>
+      <View style={styles.ratingDetail}>
+        <Text style={styles.ratingLabel}>
+          <MaterialCommunityIcons name="popcorn" size={20} color="#FFD700" />
+        </Text>
+        <Text style={styles.ratingValue}> {community_rating}%</Text>
+      </View>
+    </View>
+    {/* Espacio flexible */}
+    <View style={{ flex: 1 }} />
+    {/* Año y rating box */}
+    <View style={styles.bottomRow}>
+      <Text style={styles.yearText}>{year}</Text>
+      <View
+        style={[
+          styles.ratingBox,
+          { backgroundColor: getRatingColor(rating) }
+        ]}
+      >
+        <Text style={styles.ratingBoxText}>{rating}</Text>
+      </View>
+    </View>
+  </View>
+</View>
+  </Pressable>
+// ...existing code...
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    width: '90%',
+    height: 230, // Ajusta según necesites
+    backgroundColor: '#0D354A',
+    borderRadius: 22,
+    overflow: 'visible',
+    alignSelf: 'center',
+  },
+  imageContainer: {
+    flex: 1.2,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderTopLeftRadius: 22,
+    borderBottomLeftRadius: 22,
+  },
+  infoContainer: {
+    flex: 1,
+    padding: 15,
+    justifyContent: 'flex-start',
+  },
+  titleContainer: {
+    marginBottom: 10,
+  },
+  titleText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  robinText: {
+    color: '#FFD700', // Amarillo dorado
+    fontSize: 20,
+  },
+  yearText: {
+    color: 'white',
+    fontSize: 16,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  ratingsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  ratingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  ratingDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 1,
+  },
+  ratingLabel: {
+    fontSize: 16,
+  },
+  ratingValue: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  percentageText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  ratingContainer: {
+    alignItems: 'flex-end',
+  },
+  ratingText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  ratingBox: {
+    position: 'absolute',
+    bottom: -15,
+    right: -45,
+    height: 50,
+    minWidth: 50,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderBottomRightRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ratingBoxText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
+  }
+
+});
