@@ -41,7 +41,7 @@ export default function MediaDetail({ media, onBack, isMovie }) {
 
         {/* Géneros */}
         <View style={styles.genres}>
-          {media.genres.map((genre) => (
+          {media?.genres?.map((genre) => (
             <View style={styles.genreTag} key={genre}>
               <Text style={styles.genreText}>{genre}</Text>
             </View>
@@ -58,7 +58,7 @@ export default function MediaDetail({ media, onBack, isMovie }) {
         {/* Puntuaciones */}
         <View style={styles.scores}>
           <Text style={styles.scoreText}>
-            <Text style={styles.bold}>Puntuación:</Text> {media.rating}/10
+            <Text style={styles.bold}>Puntuación:</Text> {media.rating}/100
           </Text>
           <Text style={styles.scoreText}>
             🍅 {media.critic_rating}%   🍿 {media.community_rating}%
@@ -68,15 +68,15 @@ export default function MediaDetail({ media, onBack, isMovie }) {
 
         <View style={styles.commentsSection}>
             <TouchableOpacity style={styles.commentButton} onPress={() => setShowComments(true)}>
-                <Text style={styles.commentText}>Comentarios ({media.comments.community.length + media.comments.critics.length})</Text>
+                <Text style={styles.commentText}>Comentarios ({(media.comments?.community?.length || 0) + (media.comments?.critics?.length || 0)})</Text>
             </TouchableOpacity>
         </View>
 
         <CommentModal
         visible={showComments}
         onClose={() => setShowComments(false)}
-        community={media.comments.community}
-        critics={media.comments.critics}
+        community={media.comments?.community || []}
+        critics={media.comments?.critics || []}
         />
 
         <StarRating rating={userRating} onRatingChange={setUserRating} size={28} />

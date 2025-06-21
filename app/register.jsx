@@ -66,11 +66,36 @@ return (
     imageStyle={{ opacity: 0.7 }}
     >
 
-    <View style={{ alignItems: "center", marginTop: 200 }}>
+    <View style={{ alignItems: "center", marginTop: 170 }}>
+
+        {/*----------------Username---------------- */}
+        <Controller
+        control={control}
+        name="user_name"
+        rules={{ 
+          required: "El nombre es obligatorio", 
+          maxLength: 
+          { value: 30, message: "El nombre no puede exceder los 30 caracteres" } 
+        }}
+        render={({ field: { onChange, value } }) => (
+            <TextInput
+            placeholder="Username"
+            placeholderTextColor={"white"}
+            style={[styles.input, errors.username && styles.inputError]}
+            onChangeText={onChange}
+            value={value}
+            />
+        )}
+        />
+        {errors.username && (
+        <Text style={styles.error}>{errors.username.message}</Text>
+        )}
+
+
         {/*----------------First Name---------------- */}
         <Controller
         control={control}
-        name="name"
+        name="first_name"
         rules={{ 
           required: "El nombre es obligatorio", 
           maxLength: 
@@ -93,7 +118,7 @@ return (
         {/*---------------Last Name--------------- */}
         <Controller
         control={control}
-        name="lastName"
+        name="last_name"
         rules={{ 
           required: "El apellido es obligatorio",
           maxLength: 
