@@ -17,7 +17,7 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
   
   {/* Imagen */}
   <View style={styles.imageContainer}>
-    <Image resizeMode='cover' source={{ uri: cover_image }} style={styles.image}  />
+    <Image resizeMode='cover' source={{ uri: 'https://image.tmdb.org/t/p/original'+cover_image }} style={styles.image}  />
   </View>
   {/* Info */}
   <View style={styles.infoContainer}>
@@ -65,7 +65,7 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: '90%',
+    width: '100%',
     height: 230, // Ajusta según necesites
     backgroundColor: '#0D354A',
     borderRadius: 22,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   ratingBox: {
     position: 'absolute',
     bottom: -15,
-    right: -45,
+    right: -15,
     height: 50,
     minWidth: 50,
     paddingHorizontal: 10,

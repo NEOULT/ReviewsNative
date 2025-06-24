@@ -73,23 +73,23 @@ export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySe
           <MaterialIcons name="arrow-drop-down" size={20} color="white" />
         </TouchableOpacity>
         {/* Input para valor de sort */}
-        <TextInput
+        <View
           style={[
-            styles.input, 
-            { 
-              width: 80, 
-              backgroundColor: '#0D354A', 
+            styles.input,
+            {
+              width: 80,
+              backgroundColor: '#0D354A',
               borderRadius: 12,
-              textAlign: 'center',
-              textAlignVertical: 'center',
-             }
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 40, // Asegura altura visual similar al input
+            }
           ]}
-          placeholder={selectedSort === 'Rating' ? 'Rating' : 'Year'}
-          placeholderTextColor="white"
-          value={sortValue}
-          onChangeText={setSortValue}
-          keyboardType={selectedSort === 'Rating' ? 'numeric' : 'default'}
-        />
+        >
+          <Text style={{ color: 'white', textAlign: 'center' }}>
+            {sortValue || (selectedSort === 'Rating' ? 'Rating' : 'Year')}
+          </Text>
+        </View>
         {/* Categories */}
         <TouchableOpacity style={styles.button} onPress={() => setCategoryVisible(true)}>
           <Text style={styles.buttonText}>Categories</Text>

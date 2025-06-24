@@ -2,11 +2,12 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import MovieCard from './Media';
 
-const MediaCardList = ({media, onPress}) => (
+const MediaCardList = ({media, onPress, onEndReached}) => (
   
   <View style={styles.container}>
     <FlatList
       data={media}
+      onEndReached={onEndReached}
       keyExtractor={item => item.id}
       contentContainerStyle={{ gap: 30 }}
       showsVerticalScrollIndicator={false}
@@ -14,11 +15,11 @@ const MediaCardList = ({media, onPress}) => (
         <MovieCard
             onPress={() => onPress(item)}
             title={item.title}
-            cover_image={item.cover_image}
-            community_rating={item.community_rating}
+            cover_image={item.poster_path}
+            community_rating={item.user_rating}
             critic_rating={item.critic_rating}
-            year={item.year}
-            rating={item.rating}
+            year={item.release_date}
+            rating={item.total_rating}
         />
       )}
     />

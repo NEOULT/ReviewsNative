@@ -1,48 +1,81 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import MediaCardList from '../../components/MediaCardList';
+import { ApiService } from '../../services/ApiService';
 import MediaHeader from '../MediaHeader';
 
-const MovieScreen = ({data, route, title}) => {
+const apiService = new ApiService();
+
+const MediaScreen = ({ route, title }) => {
+  const [media, setMedia] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: true });
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedSort, setSelectedSort] = useState('Rating');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [filteredMedia, setFilteredMedia] = useState(data);
+  const [filteredMedia, setFilteredMedia] = useState([]);
   const router = useRouter();
 
-  const handleOnPress = (media) => {
-  
-    router.navigate({
-        pathname: `/${route}/${media.id}`,
-        params: { media: JSON.stringify(media) },
-        });
- }
+  // Fetch paginado según el tipo (movies o series)
+  const fetchMedia = useCallback(async (pageToFetch = 1) => {
+    setLoading(pageToFetch === 1);
+    try {
+      let response;
+      if (route === 'movies') {
+        response = await apiService.getPaginatedMovies(pageToFetch, 5);
+      } else if (route === 'series') {
+        response = await apiService.getPaginatedSeries(pageToFetch, 5);
+      }
+      setMedia(prev =>
+        pageToFetch === 1
+          ? response.data.results
+          : [...prev, ...response.data.results]
+      );
+      setPagination({
+        page: pageToFetch,
+        hasMore: pageToFetch < response.data.totalPages
+      });
+    } catch (error) {
+      setMedia([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [route]);
 
   useEffect(() => {
-    let media = [...data];
+    fetchMedia(1);
+  }, [fetchMedia]);
 
-    // Filtro por búsqueda
+  const handleLoadMore = () => {
+    if (pagination.hasMore && !loading) {
+      fetchMedia(pagination.page + 1);
+    }
+  };
+
+  useEffect(() => {
+    let filtered = [...media];
     if (searchText) {
-      media = media.filter((m) =>
+      filtered = filtered.filter((m) =>
         m.title.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-
-    // Filtro por categoría
     if (selectedCategory) {
-      media = media.filter((m) => m.category === selectedCategory);
+      filtered = filtered.filter((m) => m.category === selectedCategory);
     }
-
-    // Orden
     if (selectedSort === 'Rating') {
-      media.sort((a, b) => b.rating - a.rating);
+      filtered.sort((a, b) => b.rating - a.rating);
     } else if (selectedSort === 'Release Date') {
-      media.sort((a, b) => b.year - a.year);
+      filtered.sort((a, b) => b.year - a.year);
     }
+    setFilteredMedia(filtered);
+  }, [media, searchText, selectedSort, selectedCategory]);
 
-    setFilteredMedia(media);
-  }, [searchText, selectedSort, selectedCategory]);
+  const handleOnPress = (item) => {
+    router.navigate({
+      pathname: `/${route}/${item.tmdb_id}`
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -52,7 +85,15 @@ const MovieScreen = ({data, route, title}) => {
         onSortChange={setSelectedSort}
         onCategorySelect={setSelectedCategory}
       />
-      <MediaCardList media={filteredMedia} onPress={handleOnPress} />
+      {loading && (
+        <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
+      )}
+      {!loading && filteredMedia.length === 0 && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ color: '#fff' }}>No results found</Text>
+        </View>
+      )}
+      <MediaCardList media={filteredMedia} onPress={handleOnPress} onEndReached={handleLoadMore} />
     </View>
   );
 };
@@ -65,4 +106,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MovieScreen;
+export default MediaScreen;

@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -12,17 +13,56 @@ import {
 import CommentModal from './commentModal'; // Asegúrate de que la ruta sea correcta
 import StarRating from './StarRating';
 
-export default function MediaDetail({ media, onBack, isMovie }) {
+import { LinearGradient } from 'expo-linear-gradient';
+import { ApiService } from '../services/ApiService'; // Asegúrate de que la ruta sea correcta
+
+const apiService = new ApiService();
+
+export default function MediaDetail({ mediaId, onBack, isMovie }) {
 
   const [showComments, setShowComments] = useState(false);
   const [userRating, setUserRating] = useState(0);
+  const [media, setMedia] = useState();
+
+  useEffect(() => {
+  const fetchDetails = async () => {
+    try {
+      let response;
+      if (isMovie) {
+        response = await apiService.getMovieDetails(mediaId);
+      } else {
+        response = await apiService.getSeriesDetails(mediaId);
+      }
+
+       
+      console.log(response,"sdfsfd");
+      
+      setMedia(response.data.data);
+    } catch (error) { 
+      setMedia(null);
+    }
+  };
+
+  fetchDetails();
+}, [mediaId]);
+
+  if (!media) {
+  return (
+    <View style={{ flex: 1, backgroundColor: '#0A1B28', justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator></ActivityIndicator>
+    </View>
+  );
+}
 
   return (
-
     <ScrollView contentContainerStyle={styles.container}>
       {/* Imagen y botón atrás */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: media.cover_image }} style={styles.image} />
+        <Image source={{ uri: 'https://image.tmdb.org/t/p/original'+media.poster_path }} style={styles.image} />
+        <LinearGradient
+          colors={['transparent', '#0A1B28']}
+          style={styles.gradient}
+        />
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
@@ -32,43 +72,79 @@ export default function MediaDetail({ media, onBack, isMovie }) {
       <View style={styles.content}>
         <Text style={styles.title}>{media.title}</Text>
         <Text style={styles.subinfo}>
-          {media.year} • {
-            isMovie ? 
-            media.duration : 
-            'Temporadas ' + media.seasons + ' • Episodios ' + media.episodes
-          }
-        </Text>
+        {media.release_date ? new Date(media.release_date).getFullYear() : ''} • {
+          isMovie
+            ? media.runtime
+              ? `${Math.floor(media.runtime / 60)}h ${media.runtime % 60}m`
+              : ''
+            : `Seasons ${media.seasons_count} • Episodes ${media.episodes_count}`
+        }
+      </Text>
 
         {/* Géneros */}
         <View style={styles.genres}>
-          {media?.genres?.map((genre) => (
-            <View style={styles.genreTag} key={genre}>
-              <Text style={styles.genreText}>{genre}</Text>
+          {Array.isArray(media?.categories) && media.categories.map((genre) => (
+            <View style={styles.genreTag} key={genre._id}>
+              <Text style={styles.genreText}>{genre.name}</Text>
             </View>
           ))}
         </View>
 
         {/* Sinopsis */}
-        <Text style={styles.description}>{media.description}</Text>
+        <Text style={styles.description}>{media.synopsis}</Text>
 
         {/* Reparto */}
-        <Text style={styles.castTitle}>Reparto:</Text>
-        <Text style={styles.castText}>{media.cast.join(' • ')}</Text>
-
+          <Text style={styles.castTitle}>Cast </Text>
+          {/* Actores en 2 columnas, máximo 8 */}
+          {Array.isArray(media.cast) && media.cast.filter(p => p.role === 'Actor').length > 0 ? (
+            <View style={{ flexDirection: 'row', gap: 16 }}>
+              {/* Columna 1 */}
+              <View style={{ flex: 1 }}>
+                {media.cast
+                  .filter(p => p.role === 'Actor')
+                  .slice(0, 8)
+                  .filter((_, idx) => idx % 2 === 0)
+                  .map(actor => (
+                    <Text key={actor._id} style={styles.castText}>{actor.name}</Text>
+                  ))}
+              </View>
+              {/* Columna 2 */}
+              <View style={{ flex: 1 }}>
+                {media.cast
+                  .filter(p => p.role === 'Actor')
+                  .slice(0, 8)
+                  .filter((_, idx) => idx % 2 === 1)
+                  .map(actor => (
+                    <Text key={actor._id} style={styles.castText}>{actor.name}</Text>
+                  ))}
+              </View>
+            </View>
+          ) : (
+            <Text style={styles.castText}>Sin actores</Text>
+          )}
+          {/* Directores, máximo 2 */}
+          <Text style={styles.castText}>
+            <Text style={styles.bold}>Directores: </Text>
+            {Array.isArray(media.cast) && media.cast.filter(p => p.role === 'Director').length > 0
+              ? media.cast.filter(p => p.role === 'Director').slice(0, 5).map(director => director.name).join(' • ')
+              : Array.isArray(media.cast) && media.cast.filter(p => p.role === 'Creator').length > 0
+                ? media.cast.filter(p => p.role === 'Creator').slice(0, 5).map(creator => creator.name).join(' • ')
+                : 'Sin directores ni creadores'}
+          </Text>
         {/* Puntuaciones */}
         <View style={styles.scores}>
           <Text style={styles.scoreText}>
-            <Text style={styles.bold}>Puntuación:</Text> {media.rating}/100
+            <Text style={styles.bold}>Score:</Text> {media.total_rating}/100
           </Text>
           <Text style={styles.scoreText}>
-            🍅 {media.critic_rating}%   🍿 {media.community_rating}%
+            🍅 {media.critic_rating}%   🍿 {media.user_rating}%
           </Text>
         </View>
       </View>
 
         <View style={styles.commentsSection}>
             <TouchableOpacity style={styles.commentButton} onPress={() => setShowComments(true)}>
-                <Text style={styles.commentText}>Comentarios ({(media.comments?.community?.length || 0) + (media.comments?.critics?.length || 0)})</Text>
+                <Text style={styles.commentText}>Comments ({(media.comments?.community?.length || 0) + (media.comments?.critics?.length || 0)})</Text>
             </TouchableOpacity>
         </View>
 
@@ -98,6 +174,14 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     aspectRatio: 2 / 3,
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 90,
+    width: 800,
   },
   backButton: {
     position: 'absolute',

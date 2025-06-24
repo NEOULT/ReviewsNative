@@ -3,14 +3,13 @@ import { View } from "react-native";
 import MediaDetail from "../../../../components/MediaDetails";
 
 const MovieDetailsScreen = () => {
-  const { media } = useLocalSearchParams();
+  const { serieId } = useLocalSearchParams();
   const router = useRouter();
-  const mediaObj = JSON.parse(media);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0A1B28' }}>
       <MediaDetail
-        media={mediaObj}
+        mediaId={serieId}
         onBack={() => router.back()}
       />
     </View>

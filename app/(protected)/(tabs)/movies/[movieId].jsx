@@ -3,14 +3,14 @@ import { View } from "react-native";
 import MediaDetail from "../../../../components/MediaDetails";
 
 const MovieDetailsScreen = () => {
-  const { media } = useLocalSearchParams();
+  const { movieId } = useLocalSearchParams();
   const router = useRouter();
-  const movieObj = JSON.parse(media);
+  console.log(movieId,'transiciom');
   
   return (
     <View style={{ flex: 1, backgroundColor: '#0A1B28' }}>
       <MediaDetail
-        media={movieObj}
+        mediaId={movieId}
         onBack={() => router.back()}
         isMovie={true} // Assuming this is a movie, set to true
       />
