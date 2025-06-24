@@ -1,7 +1,6 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-  FlatList,
   Modal,
   StyleSheet,
   Text,
@@ -101,7 +100,7 @@ export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySe
       {/* PARA ANGELINA */}
       {/* Sort Modal */}
       <Modal transparent visible={sortVisible} animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay} onPress={() => setSortVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay}  activeOpacity={1} onPress={() => setSortVisible(false)}>
           <View style={styles.modalBox}>
             <View style={styles.tagsWrap}>
               {categoryOptions.map((item) => (
@@ -117,31 +116,28 @@ export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySe
                 </TouchableOpacity>
               ))}
             </View>
+
           </View>
         </TouchableOpacity>
       </Modal>
 
       {/* Categories Modal */}
       <Modal transparent visible={categoryVisible} animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay} onPress={() => setCategoryVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setCategoryVisible(false)}>
           <View style={styles.modalBox}>
-            <FlatList
-              data={categoryOptions}
-              keyExtractor={(item) => item}
-              numColumns={3}
-              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
-              renderItem={({ item }) => (
+            <View style={styles.tagsWrap}>
+              {categoryOptions.map((item) => (
                 <TouchableOpacity
+                  key={item}
                   style={styles.genreTag}
                   onPress={() => {
                     onCategorySelect(item);
-                    setCategoryVisible(false);
                   }}
                 >
                   <Text style={styles.genreText}>{item}</Text>
                 </TouchableOpacity>
-              )}
-            />
+              ))}
+            </View>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -201,7 +197,7 @@ const styles = StyleSheet.create({
   backgroundColor: '#0D354A',
   borderRadius: 10,
   paddingVertical: 10,
-  paddingHorizontal: 20,
+  paddingHorizontal: 10,
   width: '90%', // Ocupa el 90% del ancho disponible
   maxWidth: 350, // Máximo ancho para pantallas grandes
   maxHeight: '80%', // 80% del alto de la pantalla
@@ -228,9 +224,9 @@ const styles = StyleSheet.create({
   borderRadius: 15,
   paddingHorizontal: 8,
   paddingVertical: 6,
-  margin: 8, // Margen uniforme
+  margin: 4,
   minWidth: 0, // Ancho mínimo mayor para mejor legibilidad
-  maxWidth: 120,
+  maxWidth: 145,
   flexShrink: 1, // Permite que se ajuste al contenido
 },
 genreText: {
