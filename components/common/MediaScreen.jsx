@@ -18,23 +18,37 @@ const MediaScreen = ({ route, title }) => {
   const router = useRouter();
 
   // Fetch paginado según el tipo (movies o series)
-  const fetchMedia = useCallback(async (pageToFetch = 1) => {
+  const fetchMedia = useCallback(async (pageToFetch = 1, search = '') => {
     setLoading(pageToFetch === 1);
     try {
       let response;
       if (route === 'movies') {
-        response = await apiService.getPaginatedMovies(pageToFetch, 5);
+        if (search && search.length > 0) {
+          response = await apiService.searchMovies(search, pageToFetch);
+          console.log(response, 'response');
+        } else {
+          response = await apiService.getPaginatedMovies(pageToFetch, 20, 10);
+        }
       } else if (route === 'series') {
-        response = await apiService.getPaginatedSeries(pageToFetch, 5);
+        if (search && search.length > 0) {
+          response = await apiService.searchSeries(search, pageToFetch);
+        } else {
+          response = await apiService.getPaginatedSeries(pageToFetch, 20, 10);
+        }
       }
       setMedia(prev =>
         pageToFetch === 1
-          ? response.data.results
-          : [...prev, ...response.data.results]
+          ? (response.data.data?.results || response.data.results)
+          : [
+              ...prev,
+              ...(response.data.data?.results || response.data.results)
+            ]
       );
       setPagination({
         page: pageToFetch,
-        hasMore: pageToFetch < response.data.totalPages
+        hasMore:
+          pageToFetch <
+          (response.data.data?.totalPages || response.data.totalPages)
       });
     } catch (error) {
       setMedia([]);
@@ -43,23 +57,22 @@ const MediaScreen = ({ route, title }) => {
     }
   }, [route]);
 
-  useEffect(() => {
-    fetchMedia(1);
-  }, [fetchMedia]);
+    // Fetch al escribir (con debounce)
+    useEffect(() => {
+      const delayDebounce = setTimeout(() => {
+        fetchMedia(1, searchText);
+      }, 400);
+      return () => clearTimeout(delayDebounce);
+    }, [searchText, fetchMedia]);
 
   const handleLoadMore = () => {
     if (pagination.hasMore && !loading) {
-      fetchMedia(pagination.page + 1);
+      fetchMedia(pagination.page + 1, searchText);
     }
   };
 
   useEffect(() => {
     let filtered = [...media];
-    if (searchText) {
-      filtered = filtered.filter((m) =>
-        m.title.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
     if (selectedCategory) {
       filtered = filtered.filter((m) => m.category === selectedCategory);
     }
@@ -69,11 +82,11 @@ const MediaScreen = ({ route, title }) => {
       filtered.sort((a, b) => b.year - a.year);
     }
     setFilteredMedia(filtered);
-  }, [media, searchText, selectedSort, selectedCategory]);
+  }, [media, selectedSort, selectedCategory]);
 
   const handleOnPress = (item) => {
     router.navigate({
-      pathname: `/${route}/${item.tmdb_id}`
+      pathname: `/${route}/${item.tmdb_id || item.id}`,
     });
   };
 
