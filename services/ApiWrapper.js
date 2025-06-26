@@ -1,15 +1,26 @@
 export class ApiWrapper {
   constructor(host) {
     this.baseUrl = host;
+    this.token = null;
   }
-  
+
   async #_request(endpoint, method = 'GET', data) {
+
     console.log(`API base URL: ${this.baseUrl}`);
+
     const url = `${this.baseUrl}/${endpoint}`;
+
+    const headers = { 'Content-Type': 'application/json' };
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
     const options = {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers,
     };
+
     if (data && method !== 'GET') {
       options.body = JSON.stringify(data);
     }
@@ -30,6 +41,10 @@ export class ApiWrapper {
     }
 
     return responseBody;
+  }
+
+  setToken(token) {
+    this.token = token;
   }
 
   #getData(endpoint) {
@@ -60,7 +75,7 @@ export class ApiWrapper {
 
   // Block from movies
 
-  getPaginatedMovies(currentPage = 1, limit = 10) {
+  getPaginatedMovies(currentPage = 1, limit = 10, sortByDate = false, sortByRating = false) {
     const data = { currentPage, limit };
     return this.#postData('movie/paginate', data);
   }
@@ -143,16 +158,16 @@ export class ApiWrapper {
 
   // Block from profile
 
-  getUserProfile(user_id) {
-    return this.#getData(`user/${user_id}`);
+  getUserProfile() {
+    return this.#getData(`user`);
   }
 
-  updateProfile(user_id, data) {
-    return this.#putData(`user/profile/${user_id}`, data);
+  updateProfile(data) {
+    return this.#putData(`user`, data);
   }
 
-  deleteProfile(user_id) {
-    return this.#deleteData(`user/${user_id}`);
+  deleteProfile() {
+    return this.#deleteData(`user`);
   }
 
 }

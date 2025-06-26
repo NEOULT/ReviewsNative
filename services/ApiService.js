@@ -18,6 +18,9 @@ export class ApiService {
         }
     }
 
+    setToken(token) {
+        this.api.setToken(token);
+    }
     // Block from auth
 
     signIn(data) {
@@ -29,8 +32,8 @@ export class ApiService {
     }
 
     // Block from movies
-    getPaginatedMovies(currentPage = 1, limit = 10) {
-        return this._callApi("getPaginatedMovies", currentPage, limit);
+    getPaginatedMovies(currentPage = 1, limit = 10, sortByDate = false, sortByRating = false) {
+        return this._callApi("getPaginatedMovies", currentPage, limit, sortByDate, sortByRating);
     }
 
     getMovieDetails(tmbd_id) {
@@ -99,16 +102,16 @@ export class ApiService {
     }
 
     // Block from profile
-    getUserProfile(user_id) {
-        return this._callApi("getUserProfile", user_id);
+    getUserProfile() {
+        return this._callApi("getUserProfile");
     }
 
-    updateProfile(user_id, data) {
-        return this._callApi("updateProfile", user_id, data);
+    updateProfile(data) {
+        return this._callApi("updateProfile",  data);
     }
 
-    deleteProfile(user_id) {
-        return this._callApi("deleteProfile", user_id);
+    deleteProfile() {
+        return this._callApi("deleteProfile");
     }
 
 }
