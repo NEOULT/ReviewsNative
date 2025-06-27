@@ -28,18 +28,16 @@ const ProfileScreen = () => {
                         last_name: response.data.user.last_name,
                         avatar: response.data.user.avatar || 'https://i.postimg.cc/MHw8VCDs/Captura-de-pantalla-2025-06-21-100631.png',
                         email: response.data.user.email,
-                        password: ''
                     });
                 }
-                console.log(response);
-                
+
             } catch (error) {
                 console.error("Error fetching profile data:", error);
             }
         };
 
         fetchProfile();
-    }, []);
+    }, [handleSave]);
 
     const router = useRouter();
 
@@ -65,10 +63,33 @@ const ProfileScreen = () => {
         setModalVisible(true);
     };
 
-    const handleSave = (newValues) => {
+    const handleSave = async (newValues) => {
         setProfileData(prev => ({ ...prev, ...newValues }));
-        console.log(newValues);
+
+        try{
+            const response = await api.updateProfile(newValues);
+            
+            if(response.success) {
+                console.log("Profile updated successfully:", response.data);
+            }
+            
+        }catch (error) {
+            console.error("Error saving profile data:", error);
+        }
         
+    };
+
+    const handleDelete = async (password) => {
+        try {
+            const response = await api.deleteProfile(password);
+            if(response.success) {
+                console.log("Account deleted successfully");
+                logOut();
+                router.navigate('/login');
+            } 
+        } catch (error) {
+            console.error("Error deleting account:", error);
+        }
     };
 
     const ProfileItem = ({label, value, fieldName, fields = null}) => {
@@ -185,25 +206,25 @@ const ProfileScreen = () => {
                 title: "Change Password",
                 fields: [
                     {
-                        name: 'currentPassword',
+                        name: 'current_password',
                         label: 'Current Password',
                         placeholder: 'Enter current password',
-                        secureTextEntry: true,
+                        secureTextEntry: false,
                         validate: v => v.length >= 6 || 'Debe tener al menos 6 caracteres'
                     },
                     {
-                        name: 'newPassword',
+                        name: 'new_password',
                         label: 'New Password',
                         placeholder: 'Enter new password',
-                        secureTextEntry: true,
+                        secureTextEntry: false,
                         validate: v => v.length >= 6 || 'Debe tener al menos 6 caracteres'
                     },
                     {
                         name: 'confirmPassword',
                         label: 'Confirm Password',
                         placeholder: 'Confirm new password',
-                        secureTextEntry: true,
-                        validate: (v, values) => v === values.newPassword || 'Las contraseñas no coinciden'
+                        secureTextEntry: false,
+                        validate: (v, values) => v === values.new_password || 'Las contraseñas no coinciden'
                     }
                 ],
                 onSubmit: handleSave,
@@ -226,8 +247,7 @@ const ProfileScreen = () => {
                     secureTextEntry: true
                 }],
                 onSubmit: (values) => {
-                    console.log("Account deletion confirmed with password");
-                    // Lógica para eliminar la cuenta
+                    handleDelete(values.password);
                 },
                 submitButtonText: 'Delete Account',
                 dangerAction: true
