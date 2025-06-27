@@ -63,8 +63,8 @@ export class ApiService {
     }
 
     // Block from comments
-    createComment(data) {
-        return this._callApi("createComment", data);
+    createComment(media_id, content, isMovie) {
+        return this._callApi("createComment", media_id, content, isMovie);
     }
 
     deleteComment(comment_id) {

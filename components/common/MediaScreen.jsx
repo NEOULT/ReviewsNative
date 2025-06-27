@@ -135,9 +135,12 @@ const MediaScreen = ({ route, title }) => {
 }, [selectedCategory, searchText, fetchMedia]);
 
   const handleOnPress = (item) => {
+    
     router.navigate({
       pathname: `/${route}/${item.tmdb_id || item.id}`,
-    });
+      params: { localMediaId: item.id}
+    }
+  );
   };
 
   return (

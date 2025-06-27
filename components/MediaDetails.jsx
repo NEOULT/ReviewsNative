@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -14,15 +14,28 @@ import CommentModal from './commentModal'; // Asegúrate de que la ruta sea corr
 import StarRating from './StarRating';
 
 import { LinearGradient } from 'expo-linear-gradient';
+import { AuthContext } from '../context/authContext'; // Asegúrate de que la ruta sea correcta
 import { ApiService } from '../services/ApiService'; // Asegúrate de que la ruta sea correcta
 
 const apiService = new ApiService();
 
-export default function MediaDetail({ mediaId, onBack, isMovie }) {
+
+export default function MediaDetail({ mediaId, onBack, isMovie, localMediaId }) {
+
+  const {token} = useContext(AuthContext);
 
   const [showComments, setShowComments] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [media, setMedia] = useState();
+  const [inputValue, setInputValue] = useState('');
+  const [communityComments, setCommunityComments] = useState([]);
+  const [criticsComments, setCriticsComments] = useState([]);
+  const [communityPagination, setCommunityPagination] = useState({ page: 1, hasMore: true });
+  const [criticsPagination, setCriticsPagination] = useState({ page: 1, hasMore: true });
+  const [loadingMore, setLoadingMore] = useState(false);
+    
+
+  apiService.setToken(token);
 
   useEffect(() => {
   const fetchDetails = async () => {
@@ -33,9 +46,6 @@ export default function MediaDetail({ mediaId, onBack, isMovie }) {
       } else {
         response = await apiService.getSeriesDetails(mediaId);
       }
-
-       
-      console.log(response,"sdfsfd");
       
       setMedia(response.data.data);
     } catch (error) { 
@@ -46,6 +56,45 @@ export default function MediaDetail({ mediaId, onBack, isMovie }) {
   fetchDetails();
 }, [mediaId]);
 
+
+const fetchComments = async (tab = 'community', page = 1) => {
+  setLoadingMore(true);
+  try {
+    let response;
+    if (tab === 'community') {
+      response = await apiService.getPaginatedComment(page, 15, localMediaId,'user');
+      
+      setCommunityComments(prev =>
+        page === 1 ? response.data.data : [...prev, ...response.data.data]
+      );
+      setCommunityPagination({
+        page,
+        hasMore: page < response.data.totalPages
+      });
+    } else {
+      response = await apiService.getPaginatedComment(page, 15, localMediaId, 'critic');
+
+      setCriticsComments(prev =>
+        page === 1 ? response.data.data : [...prev, ...response.data.data]
+      );
+      setCriticsPagination({
+        page,
+        hasMore: page < response.data.totalPages
+      });
+    }
+  } catch (e) {
+    console.error('Error fetching comments:', e);
+  }
+  setLoadingMore(false);
+};
+
+useEffect(() => {
+  if (showComments) {
+    fetchComments('community', 1);
+    fetchComments('critics', 1);
+  }
+}, [showComments]);
+
   if (!media) {
   return (
     <View style={{ flex: 1, backgroundColor: '#0A1B28', justifyContent: 'center', alignItems: 'center' }}>
@@ -53,6 +102,32 @@ export default function MediaDetail({ mediaId, onBack, isMovie }) {
     </View>
   );
 }
+
+  const handleSendComment = async (comment) => {
+    if (!comment.trim()) return; // No enviar comentarios vacíos
+    try {
+
+      const response = await apiService.createComment(localMediaId,comment, isMovie);
+
+      if (response.success){
+        setInputValue(''); 
+        fetchComments('community', 1); 
+        fetchComments('critics', 1); 
+      }
+      
+    } catch (error) {
+      console.error('Error al enviar el comentario:', error);
+    }
+  };
+
+  const handleLoadMoreComments = (tab) => {
+    if (tab === 'community' && communityPagination.hasMore && !loadingMore) {
+      fetchComments('community', communityPagination.page + 1);
+    }
+    if (tab === 'critics' && criticsPagination.hasMore && !loadingMore) {
+      fetchComments('critics', criticsPagination.page + 1);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -156,10 +231,15 @@ export default function MediaDetail({ mediaId, onBack, isMovie }) {
         </View>
 
         <CommentModal
-        visible={showComments}
-        onClose={() => setShowComments(false)}
-        community={media.comments?.community || []}
-        critics={media.comments?.critics || []}
+          visible={showComments}
+          onClose={() => setShowComments(false)}
+          community={communityComments || []}
+          critics={criticsComments || []}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          onSendComment={handleSendComment}
+          onLoadMore={handleLoadMoreComments}
+          loadingMore={loadingMore}
         />
 
         <StarRating rating={userRating} onRatingChange={setUserRating} size={28} />

@@ -114,7 +114,16 @@ export class ApiWrapper {
 
   // Block from comments
 
-  createComment(data) {
+  createComment(media_id, content, isMovie) {
+
+    const data = {content}
+
+    if (isMovie){
+      data.movie_id = media_id;
+    }else{
+      data.serie_id = media_id;
+    }
+
     return this.#postData('comment', data);
   }
 
