@@ -20,6 +20,17 @@ const ProfileScreen = () => {
         const fetchProfile = async () => {
             try {
                 const response = await api.getUserProfile();
+
+                if(response.success) {
+                    setProfileData({
+                        user_name: response.data.user.user_name,
+                        first_name: response.data.user.first_name,
+                        last_name: response.data.user.last_name,
+                        avatar: response.data.user.avatar || 'https://i.postimg.cc/MHw8VCDs/Captura-de-pantalla-2025-06-21-100631.png',
+                        email: response.data.user.email,
+                        password: ''
+                    });
+                }
                 console.log(response);
                 
             } catch (error) {
@@ -41,14 +52,7 @@ const ProfileScreen = () => {
         dangerAction: false
     });
 
-    const [profileData, setProfileData] = useState({
-        user_name: 'angelina1024',
-        first_name: 'Angelina',
-        last_name: 'Jolie',
-        avatar: 'https://i.postimg.cc/MHw8VCDs/Captura-de-pantalla-2025-06-21-100631.png',
-        email: 'ange@gmail.com',
-        password: ''
-    });
+    const [profileData, setProfileData] = useState({});
 
     const onLogout = () => {
         logOut();

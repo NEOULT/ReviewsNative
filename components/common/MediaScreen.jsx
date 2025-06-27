@@ -13,7 +13,7 @@ const MediaScreen = ({ route, title }) => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedSort, setSelectedSort] = useState('Rating');
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [filteredMedia, setFilteredMedia] = useState([]);
   const router = useRouter();
 
@@ -96,7 +96,9 @@ const MediaScreen = ({ route, title }) => {
         title={title}
         onSearchChange={setSearchText}
         onSortChange={setSelectedSort}
-        onCategorySelect={setSelectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedCategory={selectedCategory}
+
       />
       {loading && (
         <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />

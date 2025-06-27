@@ -15,7 +15,6 @@ export default function AuthProvider({ children }) {
         const checkToken = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
-                // console.log('Token retrieved:', token);
                 
                 if (token) {
                     setToken(token);
@@ -71,7 +70,6 @@ export default function AuthProvider({ children }) {
 
         console.log('Logging in with data:', data);
         
-        await saveItem('userId', data.userId);
         await saveItem('token', data.token);
         router.replace('/movies');
         setIsLoggedIn(true);
