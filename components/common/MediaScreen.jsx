@@ -22,20 +22,34 @@ const MediaScreen = ({ route, title }) => {
     setLoading(pageToFetch === 1);
     try {
       let response;
+      // Determina los flags de ordenamiento
+      const sortByDate = selectedSort === 'Year';
+      const sortByRate = selectedSort === 'Rating';
       if (route === 'movies') {
         if (search && search.length > 0) {
           response = await apiService.searchMovies(search, pageToFetch);
           console.log(response, 'response');
         } else {
-          response = await apiService.getPaginatedMovies(pageToFetch, 20, 10);
+          response = await apiService.getPaginatedMovies(
+            pageToFetch,
+            20,
+            sortByDate,
+            sortByRate
+          );
         }
       } else if (route === 'series') {
         if (search && search.length > 0) {
           response = await apiService.searchSeries(search, pageToFetch);
         } else {
-          response = await apiService.getPaginatedSeries(pageToFetch, 20, 10);
+          response = await apiService.getPaginatedSeries(
+            pageToFetch,
+            20,
+            sortByDate,
+            sortByRate
+          );
         }
       }
+      
       setMedia(prev =>
         pageToFetch === 1
           ? (response.data.data?.results || response.data.results)
@@ -55,7 +69,7 @@ const MediaScreen = ({ route, title }) => {
     } finally {
       setLoading(false);
     }
-  }, [route]);
+  }, [route, selectedSort]);
 
     // Fetch al escribir (con debounce)
     useEffect(() => {
