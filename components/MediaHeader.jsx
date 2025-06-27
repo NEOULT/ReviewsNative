@@ -13,10 +13,7 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
   const [searchText, setSearchText] = useState('');
   const [sortVisible, setSortVisible] = useState(false);
   const [categoryVisible, setCategoryVisible] = useState(false);
-  const [selectedSort, setSelectedSort] = useState('Rating');
-  const [sortValue, setSortValue] = useState('');
-  const sortOptions = ['Rating', 'Release Date'];
- 
+
   const toggleCategory = (category) => {
     setSelectedCategory((prev) =>
       prev.includes(category)
@@ -26,6 +23,8 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
     
   };
 
+  const [selectedSort, setSelectedSort] = useState('No Filters');
+  const sortOptions = ['Rating', 'Year', 'No Filters'];
   const categoryOptions = [
   'Kids',
   'Soap',
@@ -97,30 +96,32 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
             }
           ]}
         >
-          <Text style={{ color: 'white', textAlign: 'center' }}>
-            {sortValue || (selectedSort === 'Rating' ? 'Rating' : 'Year')}
+          <Text style={[styles.buttonText, { textAlign: 'center' }]}>
+            {selectedSort}
           </Text>
         </View>
         {/* Categories */}
-        <TouchableOpacity style={styles.button} onPress={() => setCategoryVisible(true)}>
+        <TouchableOpacity style={styles.button} onPress={() => {setCategoryVisible(true)}}>
           <Text style={styles.buttonText}>Categories</Text>
           <MaterialIcons name="arrow-drop-down" size={20} color="white" />
         </TouchableOpacity>
       </View>
       
-      {/* PARA ANGELINA */}
       {/* Sort Modal */}
       <Modal transparent visible={sortVisible} animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay}  activeOpacity={1} onPress={() => setSortVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setSortVisible(false)}>
           <View style={styles.modalBox}>
-            <View style={styles.tagsWrap}>
-              {categoryOptions.map((item) => (
+            <View style={styles.tagsColumn}>
+              {sortOptions.map((item) => (
                 <TouchableOpacity
                   key={item}
                   style={styles.genreTag}
                   onPress={() => {
                     setSelectedCategory(item);
                     setCategoryVisible(false);
+                    onSortChange(item);
+                    setSelectedSort(item);
+                    setSortVisible(false);
                   }}
                 >
                   <Text style={styles.genreText}>{item}</Text>
@@ -130,6 +131,8 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* PARA ANGELINA */}
 
       {/* Categories Modal */}
       <Modal transparent visible={categoryVisible} animationType="fade">
@@ -222,13 +225,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+
   tagsWrap: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'center', // Centrar las etiquetas
-  alignItems: 'center',
-  paddingVertical: 10,
-},
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center', // Centrar las etiquetas
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+
+  tagsColumn: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
 
   genreTag: {
   backgroundColor: 'transparent',

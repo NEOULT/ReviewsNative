@@ -17,7 +17,15 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
   
   {/* Imagen */}
   <View style={styles.imageContainer}>
-    <Image resizeMode='cover' source={{ uri: 'https://image.tmdb.org/t/p/original'+cover_image }} style={styles.image}  />
+    <Image
+  resizeMode='cover'
+  source={{
+    uri: cover_image
+      ? 'https://image.tmdb.org/t/p/original' + cover_image
+      : 'https://i.postimg.cc/xTSJhVPn/Chat-GPT-Image-26-jun-2025-06-32-14-p-m.pnghttps://i.postimg.cc/tgzVtS6p/Chat-GPT-Image-26-jun-2025-06-32-14-p-m.png'
+  }}
+  style={styles.image}
+/>
   </View>
   {/* Info */}
   <View style={styles.infoContainer}>
@@ -45,7 +53,9 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
     <View style={{ flex: 1 }} />
     {/* Año y rating box */}
     <View style={styles.bottomRow}>
-      <Text style={styles.yearText}>{year}</Text>
+      <Text style={styles.yearText}>
+        {year ? new Date(year).getFullYear() : ''}
+      </Text>
       <View
         style={[
           styles.ratingBox,

@@ -76,7 +76,7 @@ export class ApiWrapper {
   // Block from movies
 
   getPaginatedMovies(currentPage = 1, limit = 10, sortByDate = false, sortByRating = false) {
-    const data = { currentPage, limit };
+    const data = { currentPage, limit, sortByDate, sortByRating };
     return this.#postData('movie/paginate', data);
   }
 
@@ -86,8 +86,8 @@ export class ApiWrapper {
 
   // Block from series
 
-  getPaginatedSeries(currentPage = 1, limit = 10) {
-    const data = { currentPage, limit };
+  getPaginatedSeries(currentPage = 1, limit = 10, sortByDate = false, sortByRating = false) {
+    const data = { currentPage, limit, sortByDate, sortByRating };
     return this.#postData('serie/paginate', data);
   }
 

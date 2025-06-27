@@ -58,7 +58,14 @@ export default function MediaDetail({ mediaId, onBack, isMovie }) {
     <ScrollView contentContainerStyle={styles.container}>
       {/* Imagen y botón atrás */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: 'https://image.tmdb.org/t/p/original'+media.poster_path }} style={styles.image} />
+        <Image
+          source={{
+            uri: media.poster_path
+              ? 'https://image.tmdb.org/t/p/original' + media.poster_path
+              : 'https://i.postimg.cc/xTSJhVPn/Chat-GPT-Image-26-jun-2025-06-32-14-p-m.png'
+          }}
+          style={styles.image}
+        />
         <LinearGradient
           colors={['transparent', '#0A1B28']}
           style={styles.gradient}

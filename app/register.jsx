@@ -5,10 +5,11 @@ import { Controller, useForm } from "react-hook-form";
 import {
   ImageBackground,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import InfoBox from "../components/common/InfoBox";
 import { useApiMessage } from "../hooks/useApiMessage";
@@ -29,8 +30,12 @@ formState: { errors, isSubmitting },
 
 const onSubmit = async (data) => {
 //console.log("Datos del formulario:", data);
+const payload = {
+    ...data,
+    role: data.critic ? "critic" : "user",
+  };
 try {
-    const resultado = await apiService.signUp(data);
+    const resultado = await apiService.signUp(payload);
     setInfo({
         message: "Registro de usuario exitoso!",
         type: "success"
@@ -81,14 +86,14 @@ return (
             <TextInput
             placeholder="Username"
             placeholderTextColor={"white"}
-            style={[styles.input, errors.username && styles.inputError]}
+            style={[styles.input, errors.user_name && styles.inputError]}
             onChangeText={onChange}
             value={value}
             />
         )}
         />
-        {errors.username && (
-        <Text style={styles.error}>{errors.username.message}</Text>
+        {errors.user_name && (
+        <Text style={styles.error}>{errors.user_name.message}</Text>
         )}
 
 
@@ -105,14 +110,14 @@ return (
             <TextInput
             placeholder="Nombre"
             placeholderTextColor={"white"}
-            style={[styles.input, errors.name && styles.inputError]}
+            style={[styles.input, errors.first_name && styles.inputError]}
             onChangeText={onChange}
             value={value}
             />
         )}
         />
-        {errors.name && (
-        <Text style={styles.error}>{errors.name.message}</Text>
+        {errors.first_name && (
+        <Text style={styles.error}>{errors.first_name.message}</Text>
         )}
 
         {/*---------------Last Name--------------- */}
@@ -128,14 +133,14 @@ return (
             <TextInput
             placeholder="Apellido"
             placeholderTextColor={"white"}
-            style={[styles.input, errors.lastName && styles.inputError]}
+            style={[styles.input, errors.last_name && styles.inputError]}
             onChangeText={onChange}
             value={value}
             />
         )}
         />
-        {errors.lastName && (
-        <Text style={styles.error}>{errors.lastName.message}</Text>
+        {errors.last_name && (
+        <Text style={styles.error}>{errors.last_name.message}</Text>
         )}
 
         {/*------------------Email-------------------- */}
@@ -215,6 +220,25 @@ return (
         {errors.password && (
         <Text style={styles.error}>{errors.password.message}</Text>
         )}
+
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10, marginTop: 10 }}>
+          <Controller
+            control={control}
+            name="critic"
+            defaultValue={false}
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  thumbColor={value ? "#F2B059" : "#ccc"}
+                  trackColor={{ false: "#767577", true: "#F2B059" }}
+                />
+                <Text style={{ color: "white", marginLeft: 8 }}>¿Eres crítico?</Text>
+              </>
+            )}
+          />
+        </View>
 
         {/* Botón */}
         <TouchableOpacity
