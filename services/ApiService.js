@@ -101,6 +101,10 @@ export class ApiService {
         return this._callApi("getSeriesCategories");
     }
 
+    getAllCategories(){
+        return this._callApi("getAllCategories");
+    }
+
     // Block from profile
     getUserProfile() {
         return this._callApi("getUserProfile");
