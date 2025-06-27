@@ -1,10 +1,12 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import InfoBox from '../../../../components/common/InfoBox';
 import ImageSelector from '../../../../components/ImagePicker';
 import EditModal from '../../../../components/ModalProfile';
 import { AuthContext } from '../../../../context/authContext';
+import { useApiMessage } from '../../../../hooks/useApiMessage.js';
 import { ApiService } from '../../../../services/ApiService';
 
 
@@ -12,12 +14,16 @@ const api = new ApiService();
 
 const ProfileScreen = () => {
 
+    const { info, setInfo, clearInfo } = useApiMessage();
+
+    const [loading, setLoading] = useState(true);
     const { logOut, token} = useContext(AuthContext);
 
     api.setToken(token);
 
     useEffect(() => {
         const fetchProfile = async () => {
+            setLoading(true);
             try {
                 const response = await api.getUserProfile();
 
@@ -34,6 +40,7 @@ const ProfileScreen = () => {
             } catch (error) {
                 console.error("Error fetching profile data:", error);
             }
+            setLoading(false);
         };
 
         fetchProfile();
@@ -64,17 +71,26 @@ const ProfileScreen = () => {
     };
 
     const handleSave = async (newValues) => {
-        setProfileData(prev => ({ ...prev, ...newValues }));
 
         try{
             const response = await api.updateProfile(newValues);
             
             if(response.success) {
-                console.log("Profile updated successfully:", response.data);
+                console.log("Profile updated successfully");
+                setProfileData(prev => ({ ...prev, ...newValues }));
             }
+
+            setInfo({
+                message: "Profile updated successfully",
+                type: "success"
+            });
             
         }catch (error) {
             console.error("Error saving profile data:", error);
+            setInfo({
+                message: `Error updating profile: ${error}`,
+                type: "error"
+            });
         }
         
     };
@@ -115,9 +131,27 @@ const ProfileScreen = () => {
         );
     };
 
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0D354A' }}>
+                <ActivityIndicator size="large" color="#fff" />
+            </View>
+        );
+    }
+
     return (
+
+    <>
+    <InfoBox
+        message={info.message}
+        type={info.type}
+        onHide={clearInfo}
+        duration={3000}
+    />
         <View style={styles.container}>
+        
         <View style={styles.header}>
+            
             <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
             <MaterialIcons name="logout" size={22} color="#fff" />
             <Text style={styles.logoutText}>Logout</Text>
@@ -127,6 +161,10 @@ const ProfileScreen = () => {
 
         <ImageSelector
             style={styles.avatar}
+            value={profileData.avatar}
+            onChange={(url) => handleSave({ avatar: url })}
+            uploadType="profile"
+            uploadMetadata={{ userId: profileData.user_name }}
         />
         
         <View style={styles.profileSection}>
@@ -209,21 +247,21 @@ const ProfileScreen = () => {
                         name: 'current_password',
                         label: 'Current Password',
                         placeholder: 'Enter current password',
-                        secureTextEntry: false,
+                        secureTextEntry: true,
                         validate: v => v.length >= 6 || 'Debe tener al menos 6 caracteres'
                     },
                     {
                         name: 'new_password',
                         label: 'New Password',
                         placeholder: 'Enter new password',
-                        secureTextEntry: false,
+                        secureTextEntry: true,
                         validate: v => v.length >= 6 || 'Debe tener al menos 6 caracteres'
                     },
                     {
                         name: 'confirmPassword',
                         label: 'Confirm Password',
                         placeholder: 'Confirm new password',
-                        secureTextEntry: false,
+                        secureTextEntry: true,
                         validate: (v, values) => v === values.new_password || 'Las contraseñas no coinciden'
                     }
                 ],
@@ -267,6 +305,7 @@ const ProfileScreen = () => {
             dangerAction={modalConfig.dangerAction}
         />
         </View> 
+        </>
     );
 };
 

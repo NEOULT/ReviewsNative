@@ -47,7 +47,7 @@ export default function ImageSelector({
         console.log('URI:', localUri);
         console.log('FormData:', formData);
 
-      const response = await fetch('https://api-recetasnative-mzua.onrender.com/api/upload-image', {
+      const response = await fetch('https://api-reviewsnative.onrender.com/api/upload-image', {
         method: 'POST',
         body: formData,
       });
