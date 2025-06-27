@@ -1,5 +1,5 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Modal,
   StyleSheet,
@@ -8,42 +8,36 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { ApiService } from '../services/ApiService'; // Asegúrate de que esta ruta sea correcta
 
-export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySelect, title }) {
+const apiService = new ApiService();
+
+export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedCategory, selectedCategory, title }) {
   const [searchText, setSearchText] = useState('');
   const [sortVisible, setSortVisible] = useState(false);
   const [categoryVisible, setCategoryVisible] = useState(false);
   const [selectedSort, setSelectedSort] = useState('No Filters');
   const sortOptions = ['Rating', 'Year', 'No Filters'];
-  const categoryOptions = [
-  'Kids',
-  'Soap',
-  'News',
-  'Drama',
-  'Crimen',
-  'Música',
-  'Acción',
-  'Familia',
-  'Terror',
-  'Bélica',
-  'Talk',
-  'Reality',
-  'Western',
-  'Historia',
-  'Romance',
-  'Comedia',
-  'Animación',
-  'Suspense',
-  'Aventura',
-  'Fantasía',
-  'Misterio',
-  'Documental',
-  'Película de TV',
-  'Sci-Fi & Fantasy',
-  'Ciencia ficción',
-  'War & Politics',
-  'Action & Adventure'
-];
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
+  const toggleCategory = (category) => {
+    setSelectedCategory((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+    
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await apiService.getAllCategories();
+      console.log(response);
+      
+      setCategoryOptions(response.data.categories); // Asegúrate que response.data sea un array de objetos { _id, name }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -126,18 +120,21 @@ export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySe
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setCategoryVisible(false)}>
           <View style={styles.modalBox}>
             <View style={styles.tagsWrap}>
-              {categoryOptions.map((item) => (
+              {categoryOptions.map((cat) => (
                 <TouchableOpacity
-                  key={item}
-                  style={styles.genreTag}
-                  onPress={() => {
-                    onCategorySelect(item);
-                  }}
+                  key={cat._id}
+                  style={[styles.genreTag, selectedCategory.includes(cat._id) && styles.tagActive]}
+                  onPress={() => toggleCategory(cat._id)}
                 >
-                  <Text style={styles.genreText}>{item}</Text>
+                  <Text style={[styles.genreText, selectedCategory.includes(cat._id) && {color: '#fff'}]}>
+                    {cat.name}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
+            <TouchableOpacity style={styles.clearButton} onPress={() => setSelectedCategory([])}>
+              <Text style={styles.clearButtonText}>Limpiar</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -244,5 +241,31 @@ genreText: {
   textAlign: 'center', // Texto centrado
   flexWrap: 'wrap'
 },
+
+tagActive: {
+  backgroundColor: '#5895B5',
+  borderColor: '#fff',
+  color: '#fff',
+},
+clearButton: {
+  backgroundColor: '#0D354A',
+  borderRadius: 10,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  alignItems: 'center',
+  marginTop: 10,
+  alignSelf: 'center',
+  width: '50%',
+  maxWidth: 300,  
+  borderWidth: 1,
+  borderColor: '#FF3B30',
+},
+clearButtonText: {
+  color: '#FF3B30',
+  fontSize: 14,
+  fontWeight: 'bold',
+  textAlign: 'center',
+  textTransform: 'uppercase',
+  }
 
 });

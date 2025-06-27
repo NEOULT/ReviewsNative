@@ -8,12 +8,15 @@ import MediaHeader from '../MediaHeader';
 const apiService = new ApiService();
 
 const MediaScreen = ({ route, title }) => {
+
+  const type = route.slice(0, -1); // 'movies' or 'series'
+  
   const [media, setMedia] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, hasMore: true });
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedSort, setSelectedSort] = useState('No Filters');
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [filteredMedia, setFilteredMedia] = useState([]);
   const router = useRouter();
 
@@ -71,6 +74,10 @@ const MediaScreen = ({ route, title }) => {
     }
   }, [route, selectedSort]);
 
+  useEffect(() => {
+  setFilteredMedia(media);
+}, [media]);
+
     // Fetch al escribir (con debounce)
     useEffect(() => {
       const delayDebounce = setTimeout(() => {
@@ -80,23 +87,52 @@ const MediaScreen = ({ route, title }) => {
     }, [searchText, fetchMedia]);
 
   const handleLoadMore = () => {
-    if (pagination.hasMore && !loading) {
+  if (pagination.hasMore && !loading) {
+    if (selectedCategory && selectedCategory.length > 0 && !searchText) {
+      apiService
+        .searchByCategories(selectedCategory, pagination.page + 1, type)
+        .then(response => {
+          setMedia(prev => [
+            ...prev,
+            ...(response.data.data?.results || response.data.results || [])
+          ]);
+          setPagination({
+            page: pagination.page + 1,
+            hasMore:
+              pagination.page + 1 <
+              (response.data.data?.totalPages || response.data.totalPages)
+          });
+        });
+    } else {
       fetchMedia(pagination.page + 1, searchText);
     }
-  };
+  }
+};
+
+  // Fetch por categorías (cuando hay categorías seleccionadas y no hay búsqueda)
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.length > 0 && !searchText) {
+      setLoading(true);
+      apiService
+        .searchByCategories(selectedCategory, 1, type)
+        .then(response => {
+          setMedia(response.data.data?.results || response.data.results || []);
+          setPagination({
+            page: 1,
+            hasMore:
+              1 < (response.data.data?.totalPages || response.data.totalPages)
+          });
+        })
+        .catch(() => setMedia([]))
+        .finally(() => setLoading(false));
+    }
+  }, [selectedCategory, type, searchText]);
 
   useEffect(() => {
-    let filtered = [...media];
-    if (selectedCategory) {
-      filtered = filtered.filter((m) => m.category === selectedCategory);
-    }
-    if (selectedSort === 'Rating') {
-      filtered.sort((a, b) => b.rating - a.rating);
-    } else if (selectedSort === 'Release Date') {
-      filtered.sort((a, b) => b.year - a.year);
-    }
-    setFilteredMedia(filtered);
-  }, [media, selectedSort, selectedCategory]);
+  if (selectedCategory.length === 0 && !searchText) {
+    fetchMedia(1, '');
+  }
+}, [selectedCategory, searchText, fetchMedia]);
 
   const handleOnPress = (item) => {
     router.navigate({
@@ -110,7 +146,8 @@ const MediaScreen = ({ route, title }) => {
         title={title}
         onSearchChange={setSearchText}
         onSortChange={setSelectedSort}
-        onCategorySelect={setSelectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedCategory={selectedCategory}
       />
       {loading && (
         <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />

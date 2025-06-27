@@ -149,11 +149,15 @@ export class ApiWrapper {
   // Block from categories
 
   getMoviesCategories() {
-    return this.#getData('category/movies');
+    return this.#getData('categories/movies');
   }
 
   getSeriesCategories() {
-    return this.#getData('category/series');
+    return this.#getData('categories/series');
+  }
+
+  getAllCategories() {
+    return this.#getData('categories/all');
   }
 
   // Block from profile
