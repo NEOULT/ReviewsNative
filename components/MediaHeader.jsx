@@ -9,20 +9,10 @@ import {
   View
 } from 'react-native';
 
-export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedCategory, selectedCategory, title }) {
+export default function MediaHeader({ onSearchChange ,onSortChange, onCategorySelect, title }) {
   const [searchText, setSearchText] = useState('');
   const [sortVisible, setSortVisible] = useState(false);
   const [categoryVisible, setCategoryVisible] = useState(false);
-
-  const toggleCategory = (category) => {
-    setSelectedCategory((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
-    
-  };
-
   const [selectedSort, setSelectedSort] = useState('No Filters');
   const sortOptions = ['Rating', 'Year', 'No Filters'];
   const categoryOptions = [
@@ -54,7 +44,6 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
   'War & Politics',
   'Action & Adventure'
 ];
-
 
   return (
     <View style={styles.container}>
@@ -117,8 +106,6 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
                   key={item}
                   style={styles.genreTag}
                   onPress={() => {
-                    setSelectedCategory(item);
-                    setCategoryVisible(false);
                     onSortChange(item);
                     setSelectedSort(item);
                     setSortVisible(false);
@@ -142,18 +129,15 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
               {categoryOptions.map((item) => (
                 <TouchableOpacity
                   key={item}
-                  style={[styles.genreTag, selectedCategory.includes(item) && styles.tagActive]}
+                  style={styles.genreTag}
                   onPress={() => {
-                    toggleCategory(item);
+                    onCategorySelect(item);
                   }}
                 >
-                  <Text style={[styles.genreText, selectedCategory.includes(item) && {color: '#fff'}]}>{item}</Text>
+                  <Text style={styles.genreText}>{item}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity style={styles.clearButton} onPress={() => setSelectedCategory([])}>
-              <Text style={styles.clearButtonText}>Limpiar</Text>
-            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -260,29 +244,5 @@ genreText: {
   textAlign: 'center', // Texto centrado
   flexWrap: 'wrap'
 },
-tagActive: {
-  backgroundColor: '#5895B5',
-  borderColor: '#fff',
-  color: '#fff',
-},
-clearButton: {
-  backgroundColor: '#0D354A',
-  borderRadius: 10,
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  alignItems: 'center',
-  marginTop: 10,
-  alignSelf: 'center',
-  width: '50%',
-  maxWidth: 300,  
-  borderWidth: 1,
-  borderColor: '#FF3B30',
-},
-clearButtonText: {
-  color: '#FF3B30',
-  fontSize: 14,
-  fontWeight: 'bold',
-  textAlign: 'center',
-  textTransform: 'uppercase',
-  }
+
 });
