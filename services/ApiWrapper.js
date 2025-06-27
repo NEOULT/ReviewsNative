@@ -163,7 +163,7 @@ export class ApiWrapper {
   }
 
   updateProfile(data) {
-    return this.#putData(`user`, data);
+    return this.#putData(`user/profile`, data);
   }
 
   deleteProfile() {
