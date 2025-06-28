@@ -10,12 +10,12 @@ import {
   View,
 } from 'react-native';
 
-import CommentModal from './commentModal'; // Asegúrate de que la ruta sea correcta
+import CommentModal from './commentModal';
 import StarRating from './StarRating';
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { AuthContext } from '../context/authContext'; // Asegúrate de que la ruta sea correcta
-import { ApiService } from '../services/ApiService'; // Asegúrate de que la ruta sea correcta
+import { AuthContext } from '../context/authContext';
+import { ApiService } from '../services/ApiService';
 
 const apiService = new ApiService();
 
@@ -33,7 +33,8 @@ export default function MediaDetail({ mediaId, onBack, isMovie, localMediaId }) 
   const [communityPagination, setCommunityPagination] = useState({ page: 1, hasMore: true });
   const [criticsPagination, setCriticsPagination] = useState({ page: 1, hasMore: true });
   const [loadingMore, setLoadingMore] = useState(false);
-    
+  const [currentUserName, setCurrentUserName] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
 
   apiService.setToken(token);
 
@@ -46,6 +47,9 @@ export default function MediaDetail({ mediaId, onBack, isMovie, localMediaId }) 
       } else {
         response = await apiService.getSeriesDetails(mediaId);
       }
+
+      const userProfile = await apiService.getUserProfile();
+      setCurrentUserName(userProfile.data.user.user_name);
       
       setMedia(response.data.data);
     } catch (error) { 
@@ -104,21 +108,48 @@ useEffect(() => {
 }
 
   const handleSendComment = async (comment) => {
-    if (!comment.trim()) return; // No enviar comentarios vacíos
+    if (!comment.trim()) return;
+    
     try {
-
-      const response = await apiService.createComment(localMediaId,comment, isMovie);
-
-      if (response.success){
-        setInputValue(''); 
-        fetchComments('community', 1); 
-        fetchComments('critics', 1); 
+      if (editingCommentId) {
+        const response = await apiService.updateComment(editingCommentId, { content: comment });
+        if (response.success) {
+          setEditingCommentId(null);
+          setInputValue('');
+          fetchComments('community', 1);
+          fetchComments('critics', 1);
+        }
+      } else {
+        const response = await apiService.createComment(localMediaId, comment, isMovie);
+        if (response.success) {
+          setInputValue('');
+          fetchComments('community', 1);
+          fetchComments('critics', 1);
+        }
       }
-      
     } catch (error) {
-      console.error('Error al enviar el comentario:', error);
+      console.error('Error al enviar o editar el comentario:', error);
     }
   };
+
+  const handleEditComment = (comment) => {
+    setInputValue(comment.content);
+    setEditingCommentId(comment.id); 
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+
+      const response = await apiService.deleteComment(commentId);
+      if (response.success) {
+        fetchComments('community', 1);
+        fetchComments('critics', 1);
+      }
+    } catch (error) {
+      console.error('Error al eliminar el comentario:', error);
+    }
+  };
+  
 
   const handleLoadMoreComments = (tab) => {
     if (tab === 'community' && communityPagination.hasMore && !loadingMore) {
@@ -240,6 +271,10 @@ useEffect(() => {
           onSendComment={handleSendComment}
           onLoadMore={handleLoadMoreComments}
           loadingMore={loadingMore}
+          currentUserName={currentUserName}
+          onEditComment={handleEditComment}
+          onDeleteComment={handleDeleteComment}
+          editingCommentId={editingCommentId}
         />
 
         <StarRating rating={userRating} onRatingChange={setUserRating} size={28} />

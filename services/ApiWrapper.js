@@ -6,8 +6,6 @@ export class ApiWrapper {
 
   async #_request(endpoint, method = 'GET', data) {
 
-    console.log(`API base URL: ${this.baseUrl}`);
-
     const url = `${this.baseUrl}/${endpoint}`;
 
     const headers = { 'Content-Type': 'application/json' };

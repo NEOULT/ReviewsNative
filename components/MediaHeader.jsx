@@ -32,8 +32,7 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
   useEffect(() => {
     const fetchCategories = async () => {
       const response = await apiService.getAllCategories();
-      console.log(response);
-      
+
       setCategoryOptions(response.data.categories); // Asegúrate que response.data sea un array de objetos { _id, name }
     };
     fetchCategories();
