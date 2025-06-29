@@ -141,7 +141,15 @@ export class ApiWrapper {
 
   // Block from reviews
 
-  createReview(data) {
+  createReview(media_id, score, isMovie) {
+
+    const data = {score}
+
+    if (isMovie){
+      data.movie_id = media_id;
+    }else{
+      data.serie_id = media_id;
+    }
     return this.#postData('review', data);
   }
 
@@ -149,8 +157,23 @@ export class ApiWrapper {
     return this.#deleteData(`review/${review_id}`);
   }
 
-  updateReview(review_id, data) {
+  updateReview(review_id, score) {
+    const data = { score };
     return this.#putData(`review/${review_id}`, data);
+  }
+
+  getUserReview(media_id, isMovie){
+
+    const data = {};
+
+    if (isMovie){
+      data.movie_id = media_id;
+    }else{
+      data.serie_id = media_id;
+    }
+
+    return this.#postData(`review/user`, data);
+
   }
 
   // Block from categories

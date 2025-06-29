@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
   function getRatingColor(rating) {
@@ -37,16 +36,10 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
     {/* Ratings tomate y cotufa */}
     <View style={styles.ratingsRow}>
       <View style={styles.ratingDetail}>
-        <Text style={styles.ratingLabel}>
-          <MaterialCommunityIcons name="trophy" size={20} color="#FFD700" />
-        </Text>
-        <Text style={styles.ratingValue}> {critic_rating}%</Text>
+        <Text style={styles.ratingValue}> 🍿 {critic_rating}% </Text>
       </View>
       <View style={styles.ratingDetail}>
-        <Text style={styles.ratingLabel}>
-          <MaterialCommunityIcons name="popcorn" size={20} color="#FFD700" />
-        </Text>
-        <Text style={styles.ratingValue}> {community_rating}%</Text>
+        <Text style={styles.ratingValue}> 🍅  {community_rating}%</Text>
       </View>
     </View>
     {/* Espacio flexible */}
@@ -85,6 +78,9 @@ const styles = StyleSheet.create({
   imageContainer: {
     flex: 1.2,
   },
+  bottomRow: {
+    justifyContent: 'flex-start',
+  },  
   image: {
     width: '100%',
     height: '100%',
@@ -103,7 +99,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginTop: 10,
   },
   robinText: {
     color: '#FFD700', // Amarillo dorado
@@ -111,8 +107,8 @@ const styles = StyleSheet.create({
   },
   yearText: {
     color: 'white',
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: 20,
+    marginLeft: 25,
     fontWeight: 'bold',
   },
   ratingsContainer: {
@@ -124,7 +120,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 8,
+    marginVertical: 20
   },
   ratingDetail: {
     flexDirection: 'row',
@@ -137,6 +133,7 @@ const styles = StyleSheet.create({
   ratingValue: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   percentageText: {
     color: 'white',

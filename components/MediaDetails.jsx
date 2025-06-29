@@ -20,12 +20,14 @@ import { ApiService } from '../services/ApiService';
 const apiService = new ApiService();
 
 
-export default function MediaDetail({ mediaId, onBack, isMovie, localMediaId }) {
+export default function MediaDetail({ mediaId, onBack, isMovie }) {
 
   const {token} = useContext(AuthContext);
 
+
+  const [localMediaId, setLocalMediaId] = useState(null);
   const [showComments, setShowComments] = useState(false);
-  const [userRating, setUserRating] = useState(0);
+  const [userRating, setUserRating] = useState({score: 0});
   const [media, setMedia] = useState();
   const [inputValue, setInputValue] = useState('');
   const [communityComments, setCommunityComments] = useState([]);
@@ -40,72 +42,106 @@ export default function MediaDetail({ mediaId, onBack, isMovie, localMediaId }) 
 
   useEffect(() => {
   const fetchDetails = async () => {
+      try {
+        let response;
+        if (isMovie) {
+          response = await apiService.getMovieDetails(mediaId);
+        } else {
+          response = await apiService.getSeriesDetails(mediaId);
+        }
+        setMedia(response.data.data);
+        
+        setLocalMediaId(response.data.data._id);
+        
+        const userRew= await apiService.getUserReview(response.data.data._id, isMovie);
+
+        if (userRew.data.data){
+          setUserRating(userRew.data.data);
+        }
+
+        const userProfile = await apiService.getUserProfile();
+        setCurrentUserName(userProfile.data.user.user_name);
+        
+      } catch (error) { 
+        console.error('Error fetching media details:', error);
+        setMedia(null);
+      }
+    };
+    fetchDetails();
+  }, [mediaId]);
+
+
+  const fetchComments = async (tab = 'community', page = 1) => {
+    setLoadingMore(true);
     try {
       let response;
-      if (isMovie) {
-        response = await apiService.getMovieDetails(mediaId);
+      if (tab === 'community') {
+        response = await apiService.getPaginatedComment(page, 15, localMediaId,'user');
+        
+        setCommunityComments(prev =>
+          page === 1 ? response.data.data : [...prev, ...response.data.data]
+        );
+        setCommunityPagination({
+          page,
+          hasMore: page < response.data.totalPages
+        });
       } else {
-        response = await apiService.getSeriesDetails(mediaId);
-      }
+        response = await apiService.getPaginatedComment(page, 15, localMediaId, 'critic');
 
-      const userProfile = await apiService.getUserProfile();
-      setCurrentUserName(userProfile.data.user.user_name);
-      
-      setMedia(response.data.data);
-    } catch (error) { 
-      setMedia(null);
+        setCriticsComments(prev =>
+          page === 1 ? response.data.data : [...prev, ...response.data.data]
+        );
+        setCriticsPagination({
+          page,
+          hasMore: page < response.data.totalPages
+        });
+      }
+    } catch (e) {
+      console.error('Error fetching comments:', e);
     }
+    setLoadingMore(false);
   };
 
-  fetchDetails();
-}, [mediaId]);
-
-
-const fetchComments = async (tab = 'community', page = 1) => {
-  setLoadingMore(true);
-  try {
-    let response;
-    if (tab === 'community') {
-      response = await apiService.getPaginatedComment(page, 15, localMediaId,'user');
-      
-      setCommunityComments(prev =>
-        page === 1 ? response.data.data : [...prev, ...response.data.data]
-      );
-      setCommunityPagination({
-        page,
-        hasMore: page < response.data.totalPages
-      });
-    } else {
-      response = await apiService.getPaginatedComment(page, 15, localMediaId, 'critic');
-
-      setCriticsComments(prev =>
-        page === 1 ? response.data.data : [...prev, ...response.data.data]
-      );
-      setCriticsPagination({
-        page,
-        hasMore: page < response.data.totalPages
-      });
+  useEffect(() => {
+    if (showComments) {
+      fetchComments('community', 1);
+      fetchComments('critics', 1);
     }
-  } catch (e) {
-    console.error('Error fetching comments:', e);
-  }
-  setLoadingMore(false);
-};
+  }, [showComments]);
 
-useEffect(() => {
-  if (showComments) {
-    fetchComments('community', 1);
-    fetchComments('critics', 1);
+    if (!media) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0A1B28', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator></ActivityIndicator>
+      </View>
+    );
   }
-}, [showComments]);
 
-  if (!media) {
-  return (
-    <View style={{ flex: 1, backgroundColor: '#0A1B28', justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator></ActivityIndicator>
-    </View>
-  );
-}
+  const handleUpdateReview = async (score) => {
+    try {
+
+      if (userRating.score === 0){
+
+        const response = await apiService.createReview(localMediaId, score, isMovie);
+
+        if (response.success) {
+          setUserRating(response.data.data);
+        }
+        
+      }else{
+
+        const response = await apiService.updateReview(userRating._id,score);
+
+        if (response.success) {
+          setUserRating(prev => ({ ...prev, score: score }));
+        }
+       
+      }
+
+    } catch (error) {
+      console.error('Error al actualizar la reseña:', error);
+    }
+  };
 
   const handleSendComment = async (comment) => {
     if (!comment.trim()) return;
@@ -185,7 +221,8 @@ useEffect(() => {
       <View style={styles.content}>
         <Text style={styles.title}>{media.title}</Text>
         <Text style={styles.subinfo}>
-        {media.release_date ? new Date(media.release_date).getFullYear() : ''} • {
+        {media.release_date ? new Date(media.release_date).getFullYear()
+        : new Date(media.first_air_date).getFullYear()} • {
           isMovie
             ? media.runtime
               ? `${Math.floor(media.runtime / 60)}h ${media.runtime % 60}m`
@@ -237,7 +274,7 @@ useEffect(() => {
           )}
           {/* Directores, máximo 2 */}
           <Text style={styles.castText}>
-            <Text style={styles.bold}>Directores: </Text>
+            <Text style={styles.castTitle}>Directores: </Text>
             {Array.isArray(media.cast) && media.cast.filter(p => p.role === 'Director').length > 0
               ? media.cast.filter(p => p.role === 'Director').slice(0, 5).map(director => director.name).join(' • ')
               : Array.isArray(media.cast) && media.cast.filter(p => p.role === 'Creator').length > 0
@@ -257,7 +294,7 @@ useEffect(() => {
 
         <View style={styles.commentsSection}>
             <TouchableOpacity style={styles.commentButton} onPress={() => setShowComments(true)}>
-                <Text style={styles.commentText}>Comments ({(media.comments?.community?.length || 0) + (media.comments?.critics?.length || 0)})</Text>
+                <Text style={styles.commentText}>Comments ({media.comments_count})</Text>
             </TouchableOpacity>
         </View>
 
@@ -277,7 +314,7 @@ useEffect(() => {
           editingCommentId={editingCommentId}
         />
 
-        <StarRating rating={userRating} onRatingChange={setUserRating} size={28} />
+        <StarRating rating={userRating.score} onRatingChange={handleUpdateReview} size={28} />
 
 
     </ScrollView>
@@ -330,16 +367,16 @@ const styles = StyleSheet.create({
   genres: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8,
     marginBottom: 14,
   },
   genreTag: {
     backgroundColor: 'transparent',
     borderColor: '#5895B5',
-    borderWidth: 3, 
+    borderWidth: 2, 
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   genreText: {
     color: '#5895B5',
@@ -356,11 +393,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   castText: {
     color: 'white',
-    marginBottom: 20,
+    marginBottom: 15,
     fontSize: 14,
   },
   scores: {

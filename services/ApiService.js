@@ -41,8 +41,8 @@ export class ApiService {
     }
 
     // Block from series
-    getPaginatedSeries(currentPage = 1, limit = 10) {
-        return this._callApi("getPaginatedSeries", currentPage, limit);
+    getPaginatedSeries(currentPage = 1, limit = 10, sortByDate = false, sortByRating = false) {
+        return this._callApi("getPaginatedSeries", currentPage, limit, sortByDate, sortByRating);
     }
 
     getSeriesDetails(tmbd_id) {
@@ -80,16 +80,20 @@ export class ApiService {
     }
 
     // Block from reviews
-    createReview(data) {
-        return this._callApi("createReview", data);
+    createReview(media_id, score, isMovie) {
+        return this._callApi("createReview", media_id, score, isMovie);
     }
 
     deleteReview(review_id) {
         return this._callApi("deleteReview", review_id);
     }
 
-    updateReview(review_id, data) {
-        return this._callApi("updateReview", review_id, data);
+    updateReview(review_id, score) {
+        return this._callApi("updateReview", review_id, score);
+    }
+
+    getUserReview(media_id, isMovie){
+        return this._callApi("getUserReview", media_id, isMovie);
     }
 
     // Block from categories

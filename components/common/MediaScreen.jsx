@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import MediaCardList from '../../components/MediaCardList';
@@ -19,6 +19,15 @@ const MediaScreen = ({ route, title }) => {
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [filteredMedia, setFilteredMedia] = useState([]);
   const router = useRouter();
+
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!searchText && (!selectedCategory || selectedCategory.length === 0)) {
+        fetchMedia(1, '');
+      }
+    }, [route, selectedSort])
+  );
 
   // Fetch paginado según el tipo (movies o series)
   const fetchMedia = useCallback(async (pageToFetch = 1, search = '') => {
@@ -138,7 +147,6 @@ const MediaScreen = ({ route, title }) => {
     
     router.navigate({
       pathname: `/${route}/${item.tmdb_id || item.id}`,
-      params: { localMediaId: item.id}
     }
   );
   };

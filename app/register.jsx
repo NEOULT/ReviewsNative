@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -19,6 +19,7 @@ const apiService = new ApiService();
 
 export default function SignUpScreen() {
 
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const { info, setInfo, clearInfo } = useApiMessage();
 const {
@@ -40,6 +41,7 @@ try {
         message: "Registro de usuario exitoso!",
         type: "success"
       });
+    router.navigate("/login");
     console.log("Respuesta del servidor:", resultado);
 } catch (error) {
     setInfo({

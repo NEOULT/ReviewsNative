@@ -44,7 +44,7 @@ const ProfileScreen = () => {
         };
 
         fetchProfile();
-    }, [handleSave]);
+    }, []);
 
     const router = useRouter();
 
@@ -313,11 +313,8 @@ const styles = StyleSheet.create({
     container: {
         width: '90%',
         alignSelf: 'center',
-        marginTop: 40,
+        marginTop: 50,
         position: 'relative',
-    },
-    header: {
-        marginBottom: 20,
     },
     avatar: { 
         borderRadius: 100, 

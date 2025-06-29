@@ -1,4 +1,5 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Modal,
@@ -20,6 +21,8 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
   const sortOptions = ['Rating', 'Year', 'No Filters'];
   const [categoryOptions, setCategoryOptions] = useState([]);
 
+  const pathname = usePathname();
+
   const toggleCategory = (category) => {
     setSelectedCategory((prev) =>
       prev.includes(category)
@@ -31,9 +34,14 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await apiService.getAllCategories();
 
-      setCategoryOptions(response.data.categories); // Asegúrate que response.data sea un array de objetos { _id, name }
+      if (pathname === '/movies') {
+        const response = await apiService.getMoviesCategories();
+        setCategoryOptions(response.data.categories); 
+      } else if (pathname === '/series') {
+        const response = await apiService.getSeriesCategories();
+        setCategoryOptions(response.data.categories); 
+      }
     };
     fetchCategories();
   }, []);
@@ -69,12 +77,12 @@ export default function MediaHeader({ onSearchChange ,onSortChange, setSelectedC
           style={[
             styles.input,
             {
-              width: 80,
+              width: 70,
               backgroundColor: '#0D354A',
               borderRadius: 12,
               justifyContent: 'center',
               alignItems: 'center',
-              height: 40, // Asegura altura visual similar al input
+              height: 45, // Asegura altura visual similar al input
             }
           ]}
         >
@@ -145,7 +153,7 @@ const styles = StyleSheet.create({
   container: {
     width: '90%',
     alignSelf: 'center',
-    marginTop: 40,
+    marginTop: 50,
   },
   title: {
     fontSize: 28,
@@ -157,7 +165,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#0D354A',
     borderRadius: 12,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     alignItems: 'center',
     marginBottom: 16,
   },
@@ -165,7 +174,6 @@ const styles = StyleSheet.create({
     color: 'white',
     flex: 1,
     fontSize: 16,
-    marginRight: 10,
   },
   buttonsRow: {
     flexDirection: 'row',
