@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { ApiWrapper } from "./ApiWrapper.js";
-const API_URL = Constants.expoConfig.extra.API_URL;
+const API_URL = Constants.expoConfig.extra.EXPO_PUBLIC_API_URL;
 
 console.log(API_URL, "Holaa");
 export class ApiService {
