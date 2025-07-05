@@ -31,7 +31,7 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
     {/* Título */}
   
     <Text style={styles.titleText}>
-      {title.length > 25 ? title.slice(0, 25) + '...' : title}
+      {title.length > 23 ? title.slice(0, 23) + '...' : title}
     </Text>
     {/* Ratings tomate y cotufa */}
     <View style={styles.ratingsRow}>
