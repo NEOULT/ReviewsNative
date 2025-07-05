@@ -36,10 +36,10 @@ export default function MediaCard ({cover_image, title, year, critic_rating, com
     {/* Ratings tomate y cotufa */}
     <View style={styles.ratingsRow}>
       <View style={styles.ratingDetail}>
-        <Text style={styles.ratingValue}> 🍿 {critic_rating}% </Text>
+        <Text style={styles.ratingValue}> 🍅 {critic_rating}% </Text>
       </View>
       <View style={styles.ratingDetail}>
-        <Text style={styles.ratingValue}> 🍅  {community_rating}%</Text>
+        <Text style={styles.ratingValue}> 🍿 {community_rating}%</Text>
       </View>
     </View>
     {/* Espacio flexible */}

@@ -81,6 +81,7 @@ const EditModal = ({
                                     value={formValues[field.name]}
                                     onChangeText={(text) => handleInputChange(field.name, text)}
                                     placeholder={field.placeholder}
+                                    placeholderTextColor="#999"
                                     secureTextEntry={field.secureTextEntry || false}
                                     keyboardType={field.keyboardType || 'default'}
                                     autoCapitalize={field.autoCapitalize || 'sentences'}
@@ -150,6 +151,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
+        color: '#000',
         backgroundColor: '#f9f9f9',
     },
     dangerInput: {
